@@ -13,7 +13,12 @@ namespace MockDataBuilder{
             this.ConnectionString = connectionString;
         }
 
-        public void ExecuteStatement(string statement)
+        //Method        :   ExecuteStatement
+        //Description   :   Connects to pgsql and executes a non query statement
+        //Input(s)      :   
+        //  -statement  :   statment to execute
+        //Output        :   int - no. of record affected 
+        public int? ExecuteStatement(string statement)
         {
             try
             {
@@ -23,9 +28,8 @@ namespace MockDataBuilder{
                     using (var cmd = new NpgsqlCommand())
                     {
                         cmd.Connection = conn;
-                        // Insert some data
                         cmd.CommandText = statement;
-                        cmd.ExecuteNonQuery();
+                        return cmd.ExecuteNonQuery();
                     }
                 }
             }
@@ -33,9 +37,16 @@ namespace MockDataBuilder{
             {
                 Console.WriteLine(ex.StackTrace);
             }
+            return null;
         }
 
-        public void FetchStatement(string statement)
+        //Method        :   FetchStatement
+        //Description   :   Connects to pgsql and executes a select statement
+        //Input(s)      :   
+        //  -statement  :   select statment to execute
+        //  -columnCount:   requested no. of columns
+        //Output        :   int - display in console 
+        public void FetchStatement(string statement,int columnCount)
         {
             try{
                 using (var conn = new NpgsqlConnection(ConnectionString))
@@ -48,9 +59,16 @@ namespace MockDataBuilder{
                         cmd.CommandText = statement;
                         using (var reader = cmd.ExecuteReader())
                         {
+                            int rows =0;
                             while (reader.Read())
                             {
-                                Console.WriteLine(reader.GetString(0));
+                                Console.Write("Row "+ ++rows + ": ");
+                                for(int i=0;i<columnCount;i++)
+                                {                                    
+                                    Console.Write(reader.GetString(i));
+                                    Console.Write('|');
+                                }
+                                Console.WriteLine();
                             }
                         }
                     }
